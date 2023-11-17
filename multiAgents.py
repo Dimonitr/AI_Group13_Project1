@@ -131,7 +131,47 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        ...
+        legalMoves = gameState.getLegalActions()
+        scores = []
+        for move in legalMoves:
+            successorGameState = gameState.generateSuccessor(0, move)
+            scores.append(self.minimizer(successorGameState, 1, self.depth))
+            #exit()
+
+        bestScore = max(scores)
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        return legalMoves[random.choice(bestIndices)]
+
+    def minimizer(self, gameState: GameState, agentIndex: int, depth: int):
+        #print(depth, "ghost", agentIndex)
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+
+        legalMoves = gameState.getLegalActions(agentIndex)
+        scores = []
+        for move in legalMoves:
+            successorGameState = gameState.generateSuccessor(agentIndex, move)
+            if agentIndex == gameState.getNumAgents() - 1:
+                scores.append(self.maximizer(successorGameState, 0, depth-1))
+            else:
+                scores.append(self.minimizer(successorGameState, agentIndex + 1, depth))
+
+        return min(scores)
+    
+    def maximizer(self, gameState: GameState, agentIndex: int, depth: int):
+        #print(depth, "pacman")
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+
+        legalMoves = gameState.getLegalActions(agentIndex)
+        scores = []
+        for move in legalMoves:
+            successorGameState = gameState.generateSuccessor(agentIndex, move)
+            scores.append(self.minimizer(successorGameState, agentIndex + 1, depth))
+
+        return max(scores)
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
